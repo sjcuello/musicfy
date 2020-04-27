@@ -12,11 +12,11 @@ export default function Auth(){
   //Para saber que formulario ha seleccionado
   const [selectedForm,setSelectedForm] = useState(null);
 
-  //Manejador de formularios
+  //Manejador de formularios y redireccion
   const handlerForm = () => {
     switch (selectedForm) {
       case "login":
-        return <LoginForm />;
+        return <LoginForm setSelectedForm={setSelectedForm} />; 
       case "register":
         return <RegisterForm setSelectedForm = {setSelectedForm} / >;
       default: 

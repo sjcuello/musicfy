@@ -1,5 +1,6 @@
 import React,{useState} from "react";
-import {Button, Icon, Form, Imput, Input} from "semantic-ui-react";
+import { toast } from 'react-toastify';
+import {Button, Icon, Form, Input} from "semantic-ui-react";
 import firebase  from "../../../utils/Firebase";
 import {validateEmail}  from "../../../utils/Validations";
 import "firebase/auth";
@@ -20,6 +21,7 @@ export default function RegisterForm(props) {
   const [isLoading, setIsLoading] = useState(false);
 
   const onSubmit = () => {
+
     setFormError({});
     let errors = {};
     let formOk = true;
@@ -38,7 +40,7 @@ export default function RegisterForm(props) {
 
     if (!formData.username) {
       errors.username = true;
-      formOk = false;
+      formOk = false; 
     }
 
     setFormError(errors);
@@ -48,10 +50,12 @@ export default function RegisterForm(props) {
       firebase.auth()
         .createUserWithEmailAndPassword(formData.email, formData.password)
         .then(() => {
-          console.log("Registro completado")
+          sendVerificationEmail();
+          changeUserName();
         })
         .catch(() => {
-          console.log("Error al registrar")
+          console.log("Error al registrar");
+          toast.error("Error al registrar");
         })
         .finally(() => {
           setSelectedForm(null);
@@ -61,6 +65,15 @@ export default function RegisterForm(props) {
       console.log("formError: ", formError );
     }
   }
+
+  const changeUserName = () =>{
+    firebase.auth().currentUser.updateProfile({
+      displayName: formData.username
+    }).catch(()=> {
+      toast.error("Error al asignar el nombre de usuario");
+    })
+  }
+
 
   const onChange = e =>{
     setFormData({
@@ -73,6 +86,11 @@ export default function RegisterForm(props) {
     setShowPassword(!showPassword);
   }
 
+  const sendVerificationEmail = ()=> {
+    firebase.auth().currentUser.sendEmailVerification()
+    .then(()=>{toast.success("Se ha enviado un mail de verificacion")})
+    .catch(()=>{toast.error("Error al enviar el email")});
+  } 
 
   return (
     <div className="register-form">
